@@ -1,74 +1,105 @@
-var formEl = $('#skills-form');
-var nameInputEl = $('#skill-name');
-var dateInputEl = $('#datepicker');
-var skillsListEl = $('#skills-list');
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+  <script src="./assets/js/script.js"></script>
+white_check_mark
+eyes
+raised_hands
 
-var printSkills = function (name, date) {
-  var listEl = $('<li>');
-  var listDetail = name.concat(' on ', date);
-  listEl.addClass('list-group-item').text(listDetail);
-  listEl.appendTo(skillsListEl);
-};
 
-var handleFormSubmit = function (event) {
+
+
+
+10:59
+Here is the JQUERY that will make that HTML work.
+// save reference to important DOM elements
+var timeDisplayEl = $('#time-display');
+var projectDisplayEl = $('#project-display');
+var projectModalEl = $('#project-modal');
+var projectFormEl = $('#project-form');
+var projectNameInputEl = $('#project-name-input');
+var projectTypeInputEl = $('#project-type-input');
+var hourlyRateInputEl = $('#hourly-rate-input');
+var dueDateInputEl = $('#due-date-input');
+
+// handle displaying the time
+function displayTime() {
+  var rightNow = moment().format('MMM DD, YYYY [at] hh:mm:ss a');
+  timeDisplayEl.text(rightNow);
+}
+
+// handle printing project data to the page
+function printProjectData(name, type, hourlyRate, dueDate) {
+  var projectRowEl = $('<tr>');
+
+  var projectNameTdEl = $('<td>').addClass('p-2').text(name);
+
+  var projectTypeTdEl = $('<td>').addClass('p-2').text(type);
+
+  var rateTdEl = $('<td>').addClass('p-2').text(hourlyRate);
+
+  var dueDateTdEl = $('<td>').addClass('p-2').text(dueDate);
+  // Use moment to get the days until due date
+  var daysToDate = moment(dueDate, 'MM/DD/YYYY').diff(moment(), 'days');
+  var daysLeftTdEl = $('<td>').addClass('p-2').text(daysToDate);
+
+  var totalEarnings = calculateTotalEarnings(hourlyRate, daysToDate);
+
+  // You can also chain methods onto new lines to keep code clean
+  var totalTdEl = $('<td>')
+    .addClass('p-2')
+    .text('$' + totalEarnings);
+
+  var deleteProjectBtn = $('<td>')
+    .addClass('p-2 delete-project-btn text-center')
+    .text('X');
+
+  // By listing each `<td>` variable as an argument, each one will be appended in that order
+  projectRowEl.append(
+    projectNameTdEl,
+    projectTypeTdEl,
+    rateTdEl,
+    dueDateTdEl,
+    daysLeftTdEl,
+    totalTdEl,
+    deleteProjectBtn
+  );
+  //order matters
+  projectDisplayEl.append(projectRowEl);
+
+  projectModalEl.modal('hide');
+}
+
+function calculateTotalEarnings(rate, days) {
+  var dailyTotal = rate * 8;
+  var total = dailyTotal * days;
+  return total;
+}
+
+function handleDeleteProject(event) {
+  console.log($(this));
+  var btnClicked = $(event.target);
+  btnClicked.parent('tr').remove();
+}
+
+// handle project form submission
+function handleProjectFormSubmit(event) {
   event.preventDefault();
 
-  var nameInput = nameInputEl.val();
-  var dateInput = dateInputEl.val();
+  var projectName = projectNameInputEl.val().trim();
+  var projectType = projectTypeInputEl.val().trim();
+  var hourlyRate = hourlyRateInputEl.val().trim();
+  var dueDate = dueDateInputEl.val().trim();
 
-  if (!nameInput || !dateInput) {
-    console.log('You need to fill out the form!');
-    return;
-  }
+  printProjectData(projectName, projectType, hourlyRate, dueDate);
+  //clear the form
+  projectFormEl[0].reset();
+}
 
-  printSkills(nameInput, dateInput);
-
-  // resets form
-  nameInputEl.val('');
-  dateInputEl.val('');
-};
-
-formEl.on('submit', handleFormSubmit);
-
-// Autocomplete widget
-$(function () {
-  var skillNames = [
-    'Bootstrap',
-    'C',
-    'C++',
-    'CSS',
-    'Express.js',
-    'Git',
-    'HTML',
-    'Java',
-    'JavaScript',
-    'jQuery',
-    'JSON',
-    'MySQL',
-    'Node.js',
-    'NoSQL',
-    'PHP',
-    'Python',
-    'React',
-    'Ruby',
-  ];
-  $('#skill-name').autocomplete({
-    source: skillNames,
-  });
-});
-
-// Datepicker widget
-$(function () {
-  $('#datepicker').datepicker({
-    changeMonth: true,
-    changeYear: true,
-  });
-});
-
-// Sortable interaction
-$(function () {
-  $('#skills-list').sortable({
-    placeholder: 'ui-state-highlight',
-  });
-  $('#skills-list').disableSelection();
-});
+projectFormEl.on('submit', handleProjectFormSubmit);
+projectDisplayEl.on('click', '.delete-project-btn', handleDeleteProject);
+dueDateInputEl.datepicker({ minDate: 1 });
+// timer for the Current time & date
+setInterval(displayTime, 1000);
