@@ -4,7 +4,6 @@
     <!-- meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
@@ -28,19 +27,14 @@
             <input type="text" class="form-control m-1" id="citySearch" placeholder="City Name">
             <button class="btn btn-primary col m-1" id="searchBtn">Search</button>
           </div>
-          <div class="form-group">
-            <button class="btn btn-secondary col m-1">Orlando</button>
-            <button class="btn btn-secondary col m-1">Boston</button>
-            <button class="btn btn-secondary col m-1">New York</button>
-            <button class="btn btn-secondary col m-1">LA</button>
-            <button class="btn btn-secondary col m-1">D.C.</button>
-            <button class="btn btn-secondary col m-1">San Francisco</button>
-            <button class="btn btn-secondary col m-1">New Orleans</button>
-            <button class="btn btn-secondary col m-1">Chicago</button>
+          <div id = 'supply-btns' class="form-group">
           </div>
         </form>
         <div class="jumbotron container-fluid d-flex flex-column m-2 p-2">
           <h1 id="city-name" class="display-4 flex-row"></h1>
+          <div class="container lead flex-row">
+            <img id="current-icon" class="col-3">
+          </div>
           <p id="current-temp" class="lead flex-row"></p>
           <p id="current-wind" class="lead flex-row"></p>
           <p id="current-humidity" class="lead flex-row"></p>
@@ -51,11 +45,11 @@
         </div>
       </div>
     </main>
-
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="assets/script.js"></script>
     <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   </body>
