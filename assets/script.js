@@ -38,7 +38,6 @@ var recentlySearchedCities = [];
 function getAPI (e) {
   e.preventDefault();
   var searchCity = cityInput.val();
-  saveSearchData();
   geocodeUrl = 'https://api.openweathermap.org/geo/1.0/direct?q='+searchCity+'&limit=1&appid='+apiKey;
   fetch(geocodeUrl, {
       method: 'GET', //GET is the default.
@@ -46,9 +45,13 @@ function getAPI (e) {
       redirect: 'follow', // manual, *follow, error
   })
       .then(function (response) {
+        //checking response before returing
+        if (response.status == 200) {
         return response.json();
+        }
       })
       .then(function (data) {
+        saveSearchData();
         //saves the geocode to a global array, and then sets the lat and long of the city
         geocodeData = data[0];
         lat = geocodeData.lat;
@@ -90,7 +93,7 @@ function setForecastCards() {
   for (var i=0; i<5; i++){ 
     var forecastDay = moment().add(i+1, 'day').format('M/D');
     var iconurl = 'http://openweathermap.org/img/wn/01d@2x.png';
-    var card = $('<div>').addClass('card ').val(i);
+    var card = $('<div>').addClass('card ').attr('id', i);
     var cardBody = $('<div>').addClass('card-body');
     var forecastDayTitle = $('<h5>').addClass('card-title').text(forecastDay);
     var iconDisplay = $('<img>').attr('src', iconurl);
@@ -107,7 +110,7 @@ function setForecastCards() {
 //populates the forecast cards with data
 function generateFutureForecast () { 
   for (var i=0; i<5; i++){
-    var forecastCard = $('div [value='+i+']');
+    var forecastCard = $('#'+i);
     console.log(forecastCard.val());
     var iconurl = 'http://openweathermap.org/img/wn/'+weatherData.daily[i].weather[0].icon+'@2x.png';
     forecastCard.find('img').attr('src', iconurl);
@@ -130,19 +133,15 @@ function generateCurrentWeatherStats(){
 function generateSupplyBtns (){
   //adds locally stored items to the recently searched array
   for (var z=0; z<localStorage.length; z++){
-    recentlySearchedCities.pop(localStorage.getItem('city'+z));
-  }
-  //creates 8 buttons
-  for (var i=0; i<8; i++){
-    //creates buttons from the recently searched array first
-    for (var y=0; y<recentlySearchedCities.length; y++){
-    var savedCity = recentlySearchedCities[y];
+    recentlySearchedCities.push(localStorage.getItem('city'+z));
+    //creates a button for each saved city
+    var savedCity = recentlySearchedCities[z];
     console.log(savedCity);
     var cityOptionBtn = $('<button>').attr('id', 'city-options').addClass('btn btn-secondary col m-1').val(savedCity).text(savedCity);
     supplyBtnEl.append(cityOptionBtn);
-    i++;
-    }
-    //then creates buttons from the random default options
+  }
+  //creates random buttons from the default if there are less than 8 cities
+  for (var i=0; i<8-recentlySearchedCities.length; i++){
     var rndCity=possibleCities[Math.floor(Math.random()*possibleCities.length)];
     var cityOptionBtn = $('<button>').attr('id', 'city-options').addClass('btn btn-secondary col m-1').val(rndCity).text(rndCity);
     supplyBtnEl.append(cityOptionBtn);
@@ -154,7 +153,7 @@ function generateSupplyBtns (){
 //saves searchdata with a key based on the number of saves
 function saveSearchData () {
   //checks if local storage has less than the default buttons
-  if (localStorage.length < 8){
+  if (localStorage.length < 8 && cityInput.val()!==''){
   //sets a stored boolean to check if local storage already contains recent search
   var stored = false;
   for (i = 0; i < localStorage.length; i++) 
