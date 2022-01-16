@@ -24,15 +24,41 @@ var weatherData = [];
 var apiKey='4c94f4694462733770c73418781b71f1';
 //setting the day
 var today = moment().format("MMM Do");
-//used as part of key:value pair to save recent cities
-var numberOfSaves = 0;
 //default possible cities to populate the buttons
-var possibleCities =[
-  'Orlando', 'New York', 'Boston', 'Chicago', 'San francisco', 'Miami', 'Los angeles', 'Seattle', 'Philadelphia', 'San Diego', 'Omaha', 'Dallas', 'Las Vegas'
-];
-//empty array to populate buttons with recently searched cities
+var possibleCities = {
+  0: {
+    city: 'Orlando',
+    btn: false}, 
+  1:{ 
+    city: 'New York',
+    btn: false},
+  2:{
+    city: 'Boston',
+    btn: false},
+  3:{
+    city: 'Chicago',
+    btn: false},
+  4:{
+    city: 'San Francisco',
+    btn: false},
+  5:{
+    city: 'Miami',
+    btn: false},
+  6:{
+    city: 'Los Angeles',
+    btn: false},
+  7: {
+    city: 'Seattle',
+    btn: false}
+  };
+var possibleCitiesLength = Object.keys(possibleCities).length;
+
+//empty array to populate buttons with recently searched cities in local storage
 var recentlySearchedCities = [];
-//gets the searched cities lat and long
+for (var i =0; i<=localStorage.length; i++){
+  recentlySearchedCities.push(localStorage.getItem('city'+i));
+}
+
 
 //######################################### Get API ###########################################
 function getAPI (e) {
@@ -58,24 +84,26 @@ function getAPI (e) {
         long = geocodeData.lon;
         //sets the jumbtron name to the searched city
         cityName.text(geocodeData.name+' ' + today);
-      });
         //uses lat and long to call for weather info
-      weatherUrl = 'https://api.openweathermap.org/data/2.5/onecall?lat='+lat+'&lon='+long+'&units=imperial&appid='+apiKey;
-  fetch(weatherUrl, {
+        weatherUrl = 'https://api.openweathermap.org/data/2.5/onecall?lat='+lat+'&lon='+long+'&units=imperial&appid='+apiKey;
+        fetch(weatherUrl, {
         method: 'GET', //GET is the default.
         credentials: 'same-origin', // include, *same-origin, omit
         redirect: 'follow', // manual, *follow, error
-      })
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (data) {
-        //saves the weather data to global array
-        weatherData = data;
-        console.log(weatherData);
-       })
+          })
+          .then(function (response) {
+          return response.json();
+          })
+          .then(function (data) {
+          //saves the weather data to global array
+          weatherData = data;
+          console.log(weatherData);
+          })
        //generates the jumbotron stats and the future forecast stats
-      .then(generateCurrentWeatherStats);
+        .then(generateCurrentWeatherStats);
+      });
+        
+     
 }
 //######################################### Set Jumbotron and Cards ###########################################
 
@@ -132,55 +160,59 @@ function generateCurrentWeatherStats(){
 //creates the pre-texted city buttons to put into the input
 function generateSupplyBtns (){
   //adds locally stored items to the recently searched array
-  for (var z=0; z<localStorage.length; z++){
-    recentlySearchedCities.push(localStorage.getItem('city'+z));
+  for (var i=0; i<recentlySearchedCities.length-1; i++){
+    console.log(recentlySearchedCities[i])
     //creates a button for each saved city
-    var savedCity = recentlySearchedCities[z];
-    console.log(savedCity);
-    var cityOptionBtn = $('<button>').attr('id', 'city-options').addClass('btn btn-secondary col m-1').val(savedCity).text(savedCity);
-    supplyBtnEl.append(cityOptionBtn);
+    var savedCity = recentlySearchedCities[i];
+    
+    supplyBtnEl.append($('<button>').addClass('btn btn-secondary col m-1').val(savedCity).text(savedCity));
   }
-  //creates random buttons from the default if there are less than 8 cities
-  for (var i=0; i<8-recentlySearchedCities.length; i++){
-    var rndCity=possibleCities[Math.floor(Math.random()*possibleCities.length)];
-    var cityOptionBtn = $('<button>').attr('id', 'city-options').addClass('btn btn-secondary col m-1').val(rndCity).text(rndCity);
-    supplyBtnEl.append(cityOptionBtn);
+  //creates random buttons from the default
+  function generateDefaultBtn () {
+    var rndCity=possibleCities[Math.floor(Math.random()*8)];
+    if (rndCity.btn == true){
+      generateDefaultBtn();
+    }
+    else {
+    supplyBtnEl.append($('<button>').addClass('btn btn-secondary col m-1').val(rndCity.city).text(rndCity.city));
+    rndCity.btn=true;
+    }
   }
-}
+  if (recentlySearchedCities.length<8)
+  {
+  for (var j=0; j< 8 - recentlySearchedCities.length; j++){
+    generateDefaultBtn()
+  }};
+  };
 
 //######################################### Save Search Data ###########################################
 
 //saves searchdata with a key based on the number of saves
 function saveSearchData () {
   //checks if local storage has less than the default buttons
-  if (localStorage.length < 8 && cityInput.val()!==''){
+  if (cityInput.val()!==''){
   //sets a stored boolean to check if local storage already contains recent search
-  var stored = false;
-  for (i = 0; i < localStorage.length; i++) 
-  {
+    var stored = false;
+    for (var i = 0; i < localStorage.length-1; i++){
     //checks if local storage has the searched city and returns true if it does
-    if (cityInput.val()==localStorage.getItem('city'+i)){
+      if (cityInput.val()==localStorage.getItem('city'+i)){
       stored = true;
+      }
     }
-  }
   //if the city isn't stored then it is added to local storage, recently searched array, and the number of saves is iterated
-  if (stored == false){
-  localStorage.setItem('city'+numberOfSaves, cityInput.val());
-  recentlySearchedCities.pop(cityName.val());
-  numberOfSaves++;
-  }
-}
-  
+    if (stored == false){
+    recentlySearchedCities.push(cityInput.val());
+    localStorage.setItem('city'+localStorage.length, cityInput.val());
+    }
+    
+    }
 }
 //######################################### Send City Input ###########################################
 
 //gives the api a city to search for on the #searchBtn click below
-function supplyCity (e) {
-  e.preventDefault();
-  cityInput.val($(this.target).val());
-  console.log(cityInput.val());
-  getAPI(e);
-}
+//function supplyCity (event) {
+  
+//}
 
 //######################################### Load ###########################################
 
@@ -192,7 +224,13 @@ function load(){
 
 //event listeners for the search button as well as the pre-made city buttons
 $('#searchBtn').on('click', getAPI);
-supplyBtnEl.on('click','button', supplyCity);
+
+supplyBtnEl.on('click','button', function (event){
+  event.preventDefault();
+  cityInput.val($(this).text());
+  console.log(cityInput.val());
+  getAPI(event);
+});
 
 //creates the defaults elements on the page
 load();
